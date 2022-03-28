@@ -1,6 +1,6 @@
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    
+
     def __init__(
             self,
             training_type: str,
@@ -26,6 +26,7 @@ class InfoMessage:
                 self.distance,
                 self.speed,
                 self.calories))
+
 
 class Training:
     """Базовый класс тренировки."""
@@ -134,6 +135,7 @@ def read_package(workout_type: str, data: list) -> Training:
     }
 
     return workout_types[workout_type](*data)
+
 
 def main(training: Training) -> None:
     """Главная функция."""
