@@ -47,6 +47,7 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий.
+
         Логика подсчета калорий для каждого вида тренировки своя.
         """
         raise NotImplementedError(
@@ -77,21 +78,15 @@ class Running(Training):
                 * self.duration * self.M_IN_H)
 
 
+@dataclass
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
+
+    height: float
 
     COEFF_CALORIE_1: ClassVar[float] = 0.035
     COEFF_CALORIE_2: ClassVar[float] = 0.029
     COEFF_CALORIE_3: ClassVar[float] = 2
-
-    def __init__(
-            self,
-            action: int,
-            duration: float,
-            weight: float,
-            height: float) -> None:
-        super().__init__(action, duration, weight)
-        self.height = height
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -100,24 +95,21 @@ class SportsWalking(Training):
                 * self.weight) * self.duration * self.M_IN_H)
 
 
+@dataclass
 class Swimming(Training):
     """Тренировка: плавание."""
 
-    LEN_STEP: ClassVar[float] = 1.38
+    length_pool: float
+    count_pool: float
 
-    def __init__(
-            self, action: int,
-            duration: float,
-            weight: float,
-            length_pool: float,
-            count_pool: float) -> None:
-        super().__init__(action, duration, weight)
-        self.length_pool = length_pool
-        self.count_pool = count_pool
+    LEN_STEP: ClassVar[float] = 1.38
+    COEFF_CALORIE_1: ClassVar[float] = 1.1
+    COEFF_CALORIE_2: ClassVar[float] = 2
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return (self.get_mean_speed() + 1.1) * 2 * self.weight
+        return ((self.get_mean_speed() + self.COEFF_CALORIE_1)
+                * self.COEFF_CALORIE_2 * self.weight)
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
@@ -127,15 +119,20 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
+
+    SWIMMING: str = 'SWM'
+    RUNNING: str = 'RUN'
+    SPORTS_WALKING: str = 'WLK'
+
     workout_types: Dict[str, Type[Training]] = {
-        'SWM': Swimming,
-        'RUN': Running,
-        'WLK': SportsWalking
+        SWIMMING: Swimming,
+        RUNNING: Running,
+        SPORTS_WALKING: SportsWalking
     }
 
     if workout_type not in workout_types:
         raise ValueError(
-            f'\'{workout_type}\' отсутствует в списке тренировок.\n'
+            f'{repr(workout_type)} отсутствует в списке тренировок.\n'
             f'Вы можете выбрать из возможных {list(workout_types)}')
 
     return workout_types[workout_type](*data)
