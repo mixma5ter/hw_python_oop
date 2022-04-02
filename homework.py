@@ -29,6 +29,8 @@ class InfoMessage:
 class Training:
     """Базовый класс тренировки."""
 
+    SHORT_NAME: ClassVar[str]
+
     action: int
     duration: float
     weight: float
@@ -65,8 +67,11 @@ class Training:
         return training_info
 
 
+@dataclass
 class Running(Training):
     """Тренировка: бег."""
+
+    SHORT_NAME: ClassVar[str] = 'RUN'
 
     COEFF_CALORIE_1: ClassVar[float] = 18
     COEFF_CALORIE_2: ClassVar[float] = 20
@@ -81,6 +86,8 @@ class Running(Training):
 @dataclass
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
+
+    SHORT_NAME: ClassVar[str] = 'WLK'
 
     height: float
 
@@ -98,6 +105,8 @@ class SportsWalking(Training):
 @dataclass
 class Swimming(Training):
     """Тренировка: плавание."""
+
+    SHORT_NAME: ClassVar[str] = 'SWM'
 
     length_pool: float
     count_pool: float
@@ -120,14 +129,8 @@ class Swimming(Training):
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
 
-    SWIMMING: str = 'SWM'
-    RUNNING: str = 'RUN'
-    SPORTS_WALKING: str = 'WLK'
-
     workout_types: Dict[str, Type[Training]] = {
-        SWIMMING: Swimming,
-        RUNNING: Running,
-        SPORTS_WALKING: SportsWalking
+        cls.SHORT_NAME: cls for cls in Training.__subclasses__()
     }
 
     if workout_type not in workout_types:
